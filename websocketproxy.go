@@ -53,10 +53,14 @@ func ProxyHandler(target *url.URL) http.Handler { return NewProxy(target) }
 
 // NewProxy returns a new Websocket reverse proxy that rewrites the
 // URL's to the scheme, host and base path provider in target.
-func NewProxy(target *url.URL) *WebsocketProxy {
+func NewProxy(target *url.URL, f func() *url.URL) *WebsocketProxy {
 	backend := func(r *http.Request) *url.URL {
 		// Shallow copy
-		u := *target
+		if target != nil {
+			u := *target
+		} else {
+			u := f()
+		}
 		u.Fragment = r.URL.Fragment
 		u.Path = r.URL.Path
 		u.RawQuery = r.URL.RawQuery
